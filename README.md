@@ -1,1 +1,2 @@
 # lintcode_company
+总结lintcode中各大公司的常考面试题多种解法
