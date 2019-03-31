@@ -1,0 +1,86 @@
+// 思路1：利用三个哈希表，一个存储key-value, 一个存储key-freq, 一个存储key-loc，每插入或更新一个值，更新三个表，尤其是key-loc表需要做顺序调整
+// 每访问一个值，只更新key-freq表，但调整key-loc表需要花费O(N)的时间复杂度，会超时。
+
+class LFUCache {
+public:
+    
+    unordered_map<int, int> freqMap;
+    unordered_map<int, int> valMap;
+    unordered_map<int, int> locMap;
+    int Cap;
+    /*
+    * @param capacity: An integer
+    */LFUCache(int capacity) {
+        // do intialization if necessary
+        Cap = capacity;
+    }
+
+    /*
+     * @param key: An integer
+     * @param value: An integer
+     * @return: nothing
+     */
+    void set(int key, int value) {
+        // write your code here
+        if(freqMap.size() < Cap && freqMap.find(key) == freqMap.end())
+        {
+
+            freqMap.insert(make_pair(key, 0));
+            valMap.insert(make_pair(key, value));
+            locMap.insert(make_pair(key, freqMap.size()));
+        }
+        else if(freqMap.find(key) != freqMap.end())
+        {
+           valMap[key] = value;
+           freqMap[key] ++;
+           int loc = locMap[key];
+           for(unordered_map<int, int>::iterator it=locMap.begin(); it != locMap.end(); it++)
+            {
+                if(it->second > loc)
+                    locMap[it->first]--;
+            }
+           locMap[key] = freqMap.size()-1;
+        }
+       
+        else
+        {
+            int minfreq = -1;
+            int del;
+            int loc;
+            for(unordered_map<int, int>::iterator it=freqMap.begin(); it != freqMap.end(); it++)
+            {
+                if(minfreq == -1 || minfreq > it->second || minfreq == it->second && locMap[it->first] < loc)
+                {
+                    minfreq = it->second;
+                    del = it->first;
+                    loc = locMap[it->first];
+                }
+            }
+            freqMap.erase(del);
+            valMap.erase(del);
+            locMap.erase(del);
+            freqMap.insert(make_pair(key, 0));
+            valMap.insert(make_pair(key, value));
+            for(unordered_map<int, int>::iterator it=locMap.begin(); it != locMap.end(); it++)
+            {
+                if(it->second > loc)
+                    locMap[it->first]--;
+            }
+            locMap.insert(make_pair(key, freqMap.size()-1));
+        }
+    }
+
+    /*
+     * @param key: An integer
+     * @return: An integer
+     */
+    int get(int key) {
+        // write your code here
+        if(freqMap.find(key) == freqMap.end())
+            return -1;
+        freqMap[key]++;
+        return valMap[key];
+    }
+};
+
+// 将key-freq表和key-loc表调整成一个二层的链表，第一层表示
