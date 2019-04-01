@@ -1,0 +1,106 @@
+/**
+ * Definition of ListNode
+ * class ListNode {
+ * public:
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int val) {
+ *         this->val = val;
+ *         this->next = NULL;
+ *     }
+ * }
+ */
+class Solution {
+public:
+    /**
+     * @param lists: a list of ListNode
+     * @return: The head of one sorted list.
+     */
+    struct cmp{  // 用cmp可以覆盖多种类型的自定义方法
+    bool operator() (ListNode* x, ListNode* y){ // 利用vector定义一个带有比较功能的结构体
+        return x->val > y->val;}
+    };
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        // write your code here
+        // 有两种方法，方法一可以使用k大的最小堆，每次从堆中找到最小的节点，再把该节点的下一个节点放入堆中，时间复杂度平均为O(NlogK), N是所有节点的数量；方法二是利用归并思路，每次从K个链表中找最小，时间复杂度为O(N*k)，但在此基础上可以优化，把数组分成k/2份，两两合并，利用分治的思路，可以提高效率。
+        
+        // 方法一：
+        // if(lists.size() == 0)
+        //     return NULL;
+        // priority_queue<ListNode*, vector<ListNode*>, cmp> kMin;
+        // for(int i=0; i<lists.size(); i++)
+        // {
+        //     if(lists[i] != NULL)
+        //         kMin.push(lists[i]);
+        // }
+        // if(kMin.empty())
+        //     return NULL;
+        // ListNode* head = kMin.top();
+        // kMin.pop();
+        // if(head->next)
+        //     kMin.push(head->next);
+        // ListNode* cur = head;
+        // while(!kMin.empty())
+        // {
+        //     ListNode* tmp = kMin.top();
+        //     cur->next = tmp;
+        //     cur = cur->next;
+        //     kMin.pop();
+        //     if(tmp->next)
+        //         kMin.push(tmp->next);
+        // }
+        // cur->next= NULL;
+        // return head;
+        
+        if(lists.size() == 0)
+            return NULL;
+        int k = lists.size();
+        while(k)
+        {
+            for(int i=0; i<k/2; i++)
+                lists[i] = merge2lists(lists[i], lists[k-i-1]);
+            if(k > 1 && (k & 1) > 0)
+                lists[0] = merge2lists(lists[0], lists[k/2]);
+            k /= 2;    
+        }
+        return lists[0];
+    }
+    
+    ListNode* merge2lists(ListNode* list1, ListNode* list2)
+    {
+        if(list1 == NULL && list2 == NULL)
+            return NULL;
+        if(list1 == NULL && list2)
+            return list2;
+        else if(list1 && list2 == NULL)
+            return list1;
+        
+        ListNode* dummyhead = new ListNode(-1);
+        ListNode* cur = dummyhead;
+        while(list1 && list2)
+        {
+            if(list1->val <= list2->val)
+            {
+                cur->next = list1;
+                list1 = list1->next;
+            }
+            else
+            {
+                cur->next = list2;
+                list2 = list2->next;
+            }
+            cur = cur->next;
+            cur->next = NULL;
+        }
+        if(list1)
+            cur->next = list1;
+        else
+            cur->next = list2;
+        ListNode* head = dummyhead->next;
+        delete dummyhead;
+        dummyhead = NULL;
+        return head;
+    }
+};
+
+
