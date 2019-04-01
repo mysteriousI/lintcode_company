@@ -1,0 +1,59 @@
+/**
+ * Definition of TreeNode:
+ * class TreeNode {
+ * public:
+ *     int val;
+ *     TreeNode *left, *right;
+ *     TreeNode(int val) {
+ *         this->val = val;
+ *         this->left = this->right = NULL;
+ *     }
+ * }
+ */
+
+
+class Solution {
+public:
+    /*
+     * @param root: The root of the binary search tree.
+     * @param A: A TreeNode in a Binary.
+     * @param B: A TreeNode in a Binary.
+     * @return: Return the least common ancestor(LCA) of the two nodes.
+     */
+    TreeNode * lowestCommonAncestor(TreeNode * root, TreeNode * A, TreeNode * B) {
+        // write your code here
+        // 借助辅助栈存放访问序列
+        stack<TreeNode*> listA, listB;
+        preOrder(root, A, listA);
+        preOrder(root, B, listB);
+        while(listA.size() > listB.size())
+            listA.pop();
+        while(listB.size() > listA.size())
+            listB.pop();
+        TreeNode* res = NULL;
+        while(!listA.empty() && listA.top() != listB.top())
+        {
+            listA.pop();
+            listB.pop();
+        }
+        if(!listA.empty())
+            res = listA.top();
+        return res;
+    }
+    
+    bool preOrder(TreeNode* root, TreeNode* &target, stack<TreeNode*> &list)
+    {
+        if(root == NULL)
+            return false;
+        list.push(root);
+        if(root == target)
+            return true;
+        bool left = preOrder(root->left, target, list);
+        if(left)
+            return true;
+        bool right = preOrder(root->right, target, list);
+        if(right == false)
+            list.pop();
+        return right;
+    }
+};
