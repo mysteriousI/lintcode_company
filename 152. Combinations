@@ -1,0 +1,115 @@
+class Solution {
+public:
+    // 思路1：组合问题由于元素之间不具有顺序性，所以可以在排列问题上进行改造，控制好选取元素的位置即可
+//     vector<vector<int>> combine(int n, int k) {
+//         vector<vector<int>> res;
+//         if(n <= 0 || k <= 0 || k > n) // 把边界条件考虑上，尤其是k > n，如果不考虑这个条件，回溯一直会完全进行但实际上很费时
+//             return res;
+//         backtrack(n, k, 1, vector<int>{}, res);
+//         return res;
+//     }
+//     void backtrack(int n, int k, int index, vector<int> combine, vector<vector<int>> &res)
+//     {
+//         if(combine.size() == k)
+//         {
+//             res.push_back(combine);
+//             return;
+//         }
+
+//         // for(int i=index; i+k<=n; i++) // 此问题可以进一步优化，当index到达一定程度时，不需要一直遍历到n，因为会有不满足index+k <= n的情况了
+//         // {
+//         //     combine.push_back(i);
+//         //     backtrack(n, k, i+1, combine, res);
+//         //     combine.pop_back();
+//         // }
+        
+//         // 剪枝条件
+//         // 还有k-combine.size()个空位，所以[i...n]中至少要有k-combine.size()个元素
+//         // i最多为n-(k-combine.size())+1
+//         for(int i=index; i<= n-(k-combine.size())+1; i++)
+//         {
+//             combine.push_back(i);
+//             backtrack(n, k, i+1, combine, res);
+//             combine.pop_back();
+//         }
+//     }
+    
+    // 思路2：利用递推公式：C(n, k) = C(n-1, k-1) + C(n-1, k)
+    /*
+    举例：
+    C(4, 2) = C(3, 1) + C(3, 2)
+我们不难写出 C(3, 1) 的所有情况：[1], [2], [3]，还有 C(3, 2) 的所有情况：[1, 2], [1, 3], [2, 3]。我们发现二者加起来为6，正好是 C(4, 2) 的个数之和。但是我们仔细看会发现，C(3, 2)的所有情况包含在 C(4, 2) 之中，但是 C(3, 1) 的每种情况只有一个数字，而我们需要的结果k=2，其实很好办，每种情况后面都加上4，于是变成了：[1, 4], [2, 4], [3, 4]，加上C(3, 2) 的所有情况：[1, 2], [1, 3], [2, 3]，正好就得到了 n=4, k=2 的所有情况了。
+    */
+    // 另外，可以加入记忆化搜索，但这样占用的空间会比较大
+    // vector<vector<int>> combine(int n, int k) {
+    //     vector<vector<int>> res;
+    //     if(n <= 0 || k < 0 || k > n)
+    //         return res;
+    //     else if(k == 0)
+    //     {
+    //         res.push_back(vector<int>{});
+    //         return res;
+    //     }
+    //     else if(n == 1 && k == 1)
+    //     {
+    //         res.push_back(vector<int>{1});
+    //         return res;
+    //     }    
+    //     res = combine(n - 1, k - 1);
+    //     for (int i=0; i<res.size(); i++) 
+    //         res[i].push_back(n);
+    //     vector<vector<int>> tmp = combine(n - 1, k);
+    //     for (int i=0; i<tmp.size(); i++)
+    //         res.push_back(tmp[i]);
+    //     return res;        
+    // }
+    
+    // 思路3：一个更为巧妙的思路
+    /* 这里每次先递增最右边的数字，存入结果res中，当右边的数字超过了n，则增加其左边的数字，然后将当前数组赋值为左边的数字，再逐个递增，直到最左边的数字也超过了n，停止循环。对于n=4, k=2时，遍历的顺序如下所示：
+    0 0 #initialization
+    1 0
+    1 1 
+    1 2 #push_back
+    1 3 #push_back
+    1 4 #push_back
+    1 5
+    2 5
+    2 2 
+    2 3 #push_back
+    2 4 #push_back
+    ...
+    3 4 #push_back
+    3 5
+    4 5
+    4 4
+    4 5
+    5 5 #stop 
+    */
+    vector<vector<int>> combine(int n, int k) {
+        vector<vector<int>> res;
+        if(n <= 0 || k < 0 || k > n)
+            return res;
+        vector<int> out(k, 0);
+        int i=0;
+        while(out[0] <= n-k+1)
+        {
+            out[i]++;
+            if(out[i] > n)
+            {
+                i--;
+                continue;
+            }
+            else if(i == k-1)
+            {
+                res.push_back(out);
+                continue;
+            }
+            else
+            {
+                i++;
+                out[i] = out[i-1];
+            }
+        }
+        return res;
+    }
+};
