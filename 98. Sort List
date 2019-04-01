@@ -1,0 +1,129 @@
+/**
+ * Definition of singly-linked-list:
+ * class ListNode {
+ * public:
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int val) {
+ *        this->val = val;
+ *        this->next = NULL;
+ *     }
+ * }
+ */
+
+class Solution {
+public:
+    /**
+     * @param head: The head of linked list.
+     * @return: You should return the head of the sorted linked list, using constant space complexity.
+     */
+    ListNode * sortList(ListNode * head) {
+        // write your code here
+        ListNode* res;
+        // res = MergeSort(head);
+        ListNode* end = NULL;
+        QuickSort(head, end);
+        res = head;
+        return res;
+    }
+    
+    void QuickSort(ListNode* &head, ListNode* &end)
+    {
+        // 以下部分超时，因为right的位置总是被赋值为left，这样会存在重复遍历的操作，而另一方法是只遍历一次
+        // if(head == NULL || head == end)
+        //     return;
+        // int pivot = head->val; // 表头作为哨兵
+        // ListNode* left = head->next;
+        // ListNode* lefttail = head;
+        // ListNode* right;
+        // while(left != end && right != end)
+        // {
+        //     while(left!=end && left->val < pivot)
+        //     {
+        //         lefttail = left;
+        //         left = left->next;
+        //     }
+        //     right = left;
+        //     while(right!=end && right->val > pivot)
+        //         right = right->next;
+        //     if(left!=end && right!=end && left!=right)
+        //     {
+        //         int tmp = left->val;
+        //         left->val = right->val;
+        //         right->val = tmp;
+        //         lefttail = left;
+        //         left = left->next;
+        //     }
+        // }
+        // int tmp = lefttail->val;
+        // lefttail->val = head->val;
+        // head->val = tmp;
+        
+        // QuickSort(head, lefttail);
+        // QuickSort(lefttail->next, end);
+        
+        if(head == NULL || head == end)             //如果头指针为空或者链表为空，直接返回  
+            return ;  
+        int t;  
+        ListNode* p = head -> next;                  //用来遍历的指针  
+        ListNode* small = head;  
+        while( p != end){  
+            if( p -> val < head -> val){      //对于小于轴的元素放在左边  
+                small = small -> next;  
+                t = small -> val;  
+                small -> val = p -> val;  
+                p -> val = t;  
+            }  
+            p = p -> next;  
+        }  
+        t = head -> val;                           //遍历完后，对左轴元素与small指向的元素交换  
+        head -> val = small -> val;  
+        small -> val = t;  
+        QuickSort(head, small);                     //对左右进行递归  
+        QuickSort(small -> next, end);  
+    }
+    
+    ListNode* MergeSort(ListNode* head)
+    {
+        if(head == NULL || head->next == NULL)
+            return head;
+            
+        ListNode* fast = head->next, *slow = head; // 注意快慢指针的定义
+        while(fast && fast->next)
+        {
+            fast = fast->next->next;
+            slow = slow->next;
+        }
+        ListNode* right = slow->next;
+        slow->next = NULL;
+        ListNode* left = head;
+        left = MergeSort(left);
+        right = MergeSort(right);
+        
+        ListNode* dummyhead = new ListNode(-1);
+        ListNode* cur = dummyhead;
+        while(left && right)
+        {
+            if(left->val <= right->val)
+            {
+                cur->next = left;
+                left = left->next;
+            }
+            else 
+            {
+                cur->next  = right;
+                right = right->next;
+            }
+            cur = cur->next;
+            cur->next = NULL;
+        }
+        if(left)
+            cur->next = left;
+        if(right)
+            cur->next = right;
+        ListNode* newhead = dummyhead->next;
+        delete dummyhead;
+        dummyhead = NULL;
+        return newhead;
+    }
+};
