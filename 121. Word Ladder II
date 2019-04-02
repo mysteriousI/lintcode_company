@@ -1,0 +1,73 @@
+class Solution {
+public:
+    /*
+     * @param start: a string
+     * @param end: a string
+     * @param dict: a set of string
+     * @return: a list of lists of string
+     */
+    vector<vector<string>> findLadders(string &start, string &end, unordered_set<string> &dict) {
+        // write your code here
+        vector<vector<string>> res;
+        queue<pair<string, int> > q; 
+        pair<string, int> q_item{start, 1};
+        q.push(q_item);
+        unordered_map<string, int> visited; 
+        visited.insert(make_pair(start,1));
+        // 类似于perfect squares，将问题转换成求无向图的最短路径，用visited数组记录访问过的结点，
+        // 把每一个合法的字符串加入队列中，从队列里一一取出，再重复访问数组中的字符串找符合条件的串。
+        // 时间复杂度为O(n^2)
+        unordered_map<string, vector<string>> map2str;
+        int min_dis = 0;
+        while(!q.empty())
+        {
+            string word = q.front().first;
+            int step = q.front().second;
+            q.pop();
+            if(word == end)
+                {min_dis = step; break;}
+
+            for(int j=0; j<word.length(); j++)
+                for(char k='a'; k<='z'; k++)
+            {
+                string cur = word;
+                cur[j] = k;
+                if(dict.find(cur) != dict.end() && word != cur || cur == end) 
+                {
+                    if(map2str.find(word) == map2str.end())
+                        map2str.insert(make_pair(word, vector<string>{cur})); // 设置邻接字符串map2str，曾经被访问过的字符串一样会被考虑。
+                    else
+                        map2str[word].push_back(cur);
+                    if(visited.find(cur) == visited.end()) // visited记录每个字符串到beginword的最短距离
+                    {
+                        q_item.first = cur;
+                        q_item.second = step+1;
+                        q.push(q_item);
+                        visited.insert(make_pair(cur, step+1));
+                    }
+                }               
+            } 
+        }
+        cout<<min_dis<<endl;
+        dfs(visited, map2str, res, vector<string>{start}, end, min_dis);
+        return res;
+    }
+    void dfs(unordered_map<string, int> &visited, unordered_map<string, vector<string>> &map2str,
+             vector<vector<string>> &res, vector<string> temp, string &endWord, int min_dis)
+        // 在DFS中，尽可能对数组加&，如果是完全的形参，每一次递归操作都要复制一遍数组，这也会很耗时。
+    {
+        string word = temp[temp.size()-1];
+        if(visited[word] == min_dis && word == endWord)
+        {res.push_back(temp); return;}
+        
+        for(int i=0; i<map2str[word].size(); i++)
+        {    
+            if(visited[map2str[word][i]] == visited[word] + 1) // 在邻接字符串中寻找满足距离条件的进行DFS
+            {
+                temp.push_back(map2str[word][i]);
+                dfs(visited, map2str, res, temp, endWord, min_dis);
+                temp.erase(temp.begin()+temp.size()-1);
+            }
+        }
+    }
+};
