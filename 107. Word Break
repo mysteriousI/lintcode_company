@@ -1,0 +1,52 @@
+class Solution {
+public:
+    /*
+     * @param s: A string
+     * @param dict: A dictionary of words dict
+     * @return: A boolean
+     */
+     
+    // vector<int> memo;
+    // bool wordBreak(string &s, unordered_set<string> &dict) {
+    //     // write your code here
+    //     bool res = false;
+    //     memo = vector<int>(s.length(), -1);
+    //     return dfs(s, dict, 0);
+    // }
+    
+    // // 用dfs会发现有很多重复的过程，可以利用记忆化搜索加快速度
+    // bool dfs(string &s, unordered_set<string> &dict, int index)
+    // {
+    //     if(index >= s.length())
+    //         return true;
+    //     else if(memo[index] != -1)
+    //         return memo[index];
+    //     bool res = false;
+    //     for(int i=index; i<s.length(); i++)
+    //     {
+    //         string tmp = s.substr(index, i-index+1);
+    //         if(dict.find(tmp) != dict.end())
+    //             res = dfs(s, dict, i+1);
+    //         if(res == true)
+    //             break;
+    //     }
+    //     memo[index] = res;
+    //     return res;
+    // }
+    
+    // 动态规划方法
+    bool wordBreak(string &s, unordered_set<string> &dict)
+    {
+        vector<bool> dp(s.length()+1, false);
+        dp[s.length()] = true;
+        for(int i=s.length()-1; i>=0; i--)
+            for(int j=i; j<=s.length()-1; j++)
+            {
+                if(dict.find(s.substr(i, j-i+1)) != dict.end())
+                    dp[i] = dp[j+1];
+                if(dp[i] == true)
+                    break;
+            }
+        return dp[0];
+    }
+};
