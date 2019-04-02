@@ -1,0 +1,55 @@
+class Solution {
+public:
+    /*
+     * @param start: a string
+     * @param end: a string
+     * @param dict: a set of string
+     * @return: An integer
+     */
+    int ladderLength(string &start, string &end, unordered_set<string> &dict) {
+        // write your code here
+        if(start == end)
+            return 1;
+            
+        unordered_map<string, bool> visited;
+        for(unordered_set<string>::iterator it=dict.begin(); it != dict.end(); it++)
+            visited.insert(make_pair(*it, false));
+
+        int minpath = 1;
+        queue<string> q;
+        q.push(start);
+        int curlevel = 1;
+        int nextlevel = 0;
+        while(!q.empty())
+        {
+            string cur = q.front();
+            q.pop();
+            curlevel--;
+            string change = cur;
+            for(int loc=0; loc<change.length(); loc++)
+                for(int i=0; i<26; i++)
+                {
+                    change[loc] = (char)(i+'a');
+                    if(change != cur && dict.find(change) != dict.end() && visited[change] == false)
+                    {
+                        q.push(change);
+                        nextlevel++;
+                        visited[change] = true;
+                    }
+                    if(change == end) 
+                    {
+                        minpath++;
+                        return minpath;
+                    }
+                    change = cur; // 恢复原来的字符串，因为只能改一个字符
+                }
+            if(curlevel == 0 && nextlevel)
+            {
+                minpath++;
+                curlevel = nextlevel;
+                nextlevel = 0;
+            }
+        }
+        return 0;
+    }
+};
