@@ -1,0 +1,58 @@
+/**
+ * Definition of singly-linked-list:
+ * class ListNode {
+ * public:
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int val) {
+ *        this->val = val;
+ *        this->next = NULL;
+ *     }
+ * }
+ */
+
+class Solution {
+public:
+    /**
+     * @param head: A ListNode.
+     * @return: A boolean.
+     */
+    bool isPalindrome(ListNode * head) {
+        // write your code here
+        // 将链表后半部分进行反转，分成两个链表，再分别遍历一次看每个节点是否相同
+        if(head == NULL || head->next == NULL)
+            return true;
+        
+        // 第一步寻找反转的位置
+        ListNode* fast = head, *slow = head;
+        while(fast && fast->next)
+        {
+            fast = fast->next->next;
+            slow = slow->next;
+        }
+        
+        // 第二步对后半部分的链表进行反转
+        ListNode * pre = NULL, *cur = slow;
+        ListNode* next = slow->next;
+        while(cur)
+        {
+            cur->next = pre;
+            pre = cur;
+            cur = next;
+            if(next)
+                next = next->next;
+        }
+        
+        // 两个链表进行比较
+        ListNode* back = pre;
+        ListNode* front = head;
+        while(back && front)
+        {
+            if(back->val != front->val)
+                return false;
+            back = back->next;
+            front = front->next;
+        }
+        return true;
+    }
+};
