@@ -1,0 +1,37 @@
+class Solution {
+public:
+    /**
+     * @param n: a number
+     * @return: Gray code
+     */
+    vector<int> grayCode(int n) {
+        // write your code here
+        vector<int> res;
+        if(n < 0)
+            return res;
+        else if(n == 0)
+        {
+            res.push_back(0);
+            return res;
+        }
+        dfs(res, n);
+        return res;
+    }
+    
+    void dfs(vector<int> &res, int n)
+    {
+        if(n == 1)
+        {
+            res.push_back(0);
+            res.push_back(1);
+            return;
+        }
+        dfs(res, n-1);
+        int size = res.size();
+        for(int i=size-1; i>=0; i--)
+        {
+            int tmp = res[i] + (1 << n-1);
+            res.push_back(tmp);
+        }
+    }
+};
