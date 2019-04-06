@@ -1,0 +1,53 @@
+class Solution {
+public:
+    /**
+     * @param nums: a non-empty array only positive integers
+     * @return: true if can partition or false
+     */
+     
+    // DFS暴力解
+    // bool canPartition(vector<int> &nums) {
+    //     // write your code here
+    //     int sum =0;
+    //     for(int i=0; i<nums.size(); i++)
+    //         sum += nums[i];
+    //     if(sum & 1)
+    //         return false;
+    //     return dfs(nums, 0, 0, sum/2);
+    // }
+    
+    // bool dfs(vector<int> &nums, int index, int count, int sum)
+    // {
+    //     if(count == sum)
+    //         return true;
+    //     for(int i=index; i<nums.size(); i++)
+    //     {
+    //         if(dfs(nums, i+1, count+nums[i], sum) == true)
+    //             return true;
+    //     }
+    //     return false;
+    // }
+    
+    // 题目中给了一个条件,元素的大小不会超过100, 最大和不超过20000, 这样可以考虑动态规划求解, 类似于用有限个不同面额的硬币组合结果为sum/2的价值, 这里存在两个约束条件:不同元素的值、值的数量，本质上是一个背包问题。等价与背包问题，能否背到总价值的一半。
+    bool canPartition(vector<int> &nums) {
+        
+        int sum =0;
+        for(int i=0; i<nums.size(); i++)
+            sum += nums[i];
+        if(sum & 1)
+            return false;
+        
+        bool dp[10001];
+        for(int i=0; i<sum/2; i++)
+            dp[i] = 0;
+        dp[0] = 1;
+        for(int i=0; i<nums.size(); i++) // 遍历物品
+            for(int j=sum/2; j>=nums[i]; j--) // 以sum为背包的大小
+        {
+           dp[j] |= dp[j-nums[i]];
+           if(j == sum/2 && dp[j])
+                return true;
+        }
+        return false;
+    }
+};
