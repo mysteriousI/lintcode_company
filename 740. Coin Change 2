@@ -1,0 +1,22 @@
+class Solution {
+public:
+    /**
+     * @param amount: a total amount of money amount
+     * @param coins: the denomination of each coin
+     * @return: the number of combinations that make up the amount
+     */
+    int change(int amount, vector<int> &coins) {
+        // write your code here
+        // 该问题是多种组合获取总值的问题，可以考虑用01背包算法来解，状态转移方程为
+        //  dp[i][j] = dp[i-1][j] + dp[i][j-coins[i-1]], dp[i][j]表示用前i种硬币组合成j价值的组合类型，该状态转移方程表示用前i-1个硬币可以完成组合，用i个硬币可以完成j-coin[i-1]的组合，再用一个coin[i-1]就可以组合完j
+        vector< vector<int>> dp(coins.size()+1, vector<int>(amount+1, 0));
+        dp[0][0] = 1;
+        for(int i=1; i<=coins.size(); i++)
+        {
+            int coin = coins[i-1];
+            for(int j=0; j<=amount; j++) // 从0开始遍历是为了把每一个和的结果都递进到下一个dp[i]中
+                dp[i][j] = dp[i-1][j] + (j >= coin ? dp[i][j-coin] : 0);
+        }
+        return dp[coins.size()][amount];
+    }
+};
