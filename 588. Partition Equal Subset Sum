@@ -28,7 +28,7 @@ public:
     //     return false;
     // }
     
-    // 题目中给了一个条件,元素的大小不会超过100, 最大和不超过20000, 这样可以考虑动态规划求解, 类似于用有限个不同面额的硬币组合结果为sum/2的价值, 这里存在两个约束条件:不同元素的值、值的数量，本质上是一个背包问题。等价与背包问题，能否背到总价值的一半。
+    // 题目中给了一个条件,元素的大小不会超过100, 最大和不超过20000, 这样可以考虑动态规划求解, 类似于用有限个不同面额的硬币组合结果为sum/2的价值, 这里存在两个约束条件:不同元素的值、值的数量，本质上是一个背包问题。等价与背包问题，能否背到总价值的一半。原始的背包问题dp数组大小应该是dp[nums.size()][sum] = dp[nums.size()-1][sum] | dp[nums.size()-1][sum-nums[i]]，根据这个状态转移方程数组空间再进行优化。
     bool canPartition(vector<int> &nums) {
         
         int sum =0;
@@ -41,13 +41,27 @@ public:
         for(int i=0; i<sum/2; i++)
             dp[i] = 0;
         dp[0] = 1;
-        for(int i=0; i<nums.size(); i++) // 遍历物品
+        for(int i=1; i<=nums.size(); i++) // 遍历物品
             for(int j=sum/2; j>=nums[i]; j--) // 以sum为背包的大小
+            // for(int j=nums[i]; j<=sum/2; j++), 注意这里不能使用该循环，如果使用该循环，状态转移方程变成dp[i][j] = dp[i-1][j] | dp[i][j-nums[i-1]]，即把最后一项更新了以后再更新第一项，这样会出错。
         {
-           dp[j] |= dp[j-nums[i]];
-           if(j == sum/2 && dp[j])
+          dp[j] |= dp[j-nums[i-1]];
+          if(j == sum/2 && dp[j])
                 return true;
         }
         return false;
+        
+        // 第二种解法，使用更多的空间
+        // vector< vector<bool>> dp(nums.size()+1, vector<bool>(sum/2, 0));
+        // for(int i=0; i<nums.size()+1; i++)
+        //     dp[i][0] = 1;
+        // for(int i=1; i<=nums.size(); i++) // 遍历物品
+        //     for(int j=nums[i-1]; j<=sum/2; j++) // 以sum为背包的大小
+        // {
+        //   dp[i][j] = dp[i-1][j-nums[i-1]] | dp[i-1][j];
+        //   if(i == nums.size()-1 && j == sum/2 && dp[i][j])
+        //         return true;
+        // }
+        // return false;
     }
 };
