@@ -1,0 +1,56 @@
+/**
+ * Definition of ListNode
+ * class ListNode {
+ * public:
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int val) {
+ *         this->val = val;
+ *         this->next = NULL;
+ *     }
+ * }
+ */
+
+
+class Solution {
+public:
+    /*
+     * @param node: a list node in the list
+     * @param x: An integer
+     * @return: the inserted new list node
+     */
+    ListNode * insert(ListNode * node, int x) {
+        // write your code here
+        if(node == NULL)
+        {
+            node = new ListNode(x);
+            node->next = node;
+            return node;
+        } 
+        else if(node->next == NULL || node->next == node) // 只有一个节点或者该节点的循环是自己
+        {
+            node->next = new ListNode(x);
+            ListNode* res = node->next;
+            res->next = node;
+            return res;
+        }
+        ListNode* pre = node, *cur = node->next;
+        while(cur != node) // 循环一次
+        {
+            if(pre->val<=cur->val && x>=pre->val && x<=cur->val || 
+            pre->val > cur->val && (x>=pre->val || x<=cur->val))
+            {
+                ListNode* res = new ListNode(x);
+                pre->next = res;
+                res->next = cur;
+                return res;
+            }
+            pre = pre->next;
+            cur = cur->next;
+        }
+        ListNode* res = new ListNode(x);
+        pre->next = res;
+        res->next = cur;
+        return res;
+    }
+};
