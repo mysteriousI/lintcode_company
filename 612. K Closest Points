@@ -1,0 +1,124 @@
+/**
+ * Definition for a point.
+ * struct Point {
+ *     int x;
+ *     int y;
+ *     Point() : x(0), y(0) {}
+ *     Point(int a, int b) : x(a), y(b) {}
+ * };
+ */
+class myheap{
+    public:
+        vector<Point> q;
+        Point origin;
+        myheap(Point input)
+        {
+            origin = input;
+        }
+        void push(Point p)
+        {
+            q.push_back(p);
+            if(q.size() > 1)
+                shift_up();
+        }
+        void pop()
+        {
+            Point tmp = q[0];
+            q[0] = q[q.size()-1];
+            q[q.size()-1] = tmp;
+            q.pop_back();
+            if(q.size() > 1)
+                shift_down();
+        }
+        Point top()
+        {
+            return q[0];
+        }
+        void shift_up()
+        {
+            for(int i=q.size()-1; i>0; i/=2)
+                if(cmp(q[i], q[i/2]))
+                {
+                    Point tmp = q[i];
+                    q[i] = q[i/2];
+                    q[i/2] = tmp;
+                }
+                else
+                    return;
+        }
+        void shift_down()
+        {
+            for(int i=0; i*2<q.size();)
+            {
+                int next = i*2;
+                if(next < q.size()-1 && !cmp(q[next], q[next+1]))
+                    next++;
+                if(!cmp(q[i], q[next]))
+                {
+                    Point tmp = q[i];
+                    q[i] = q[next];
+                    q[next] = tmp;
+                    i = next;
+                }
+                else
+                    return;
+            }
+        }
+        bool cmp(Point p1, Point p2)
+        {
+            int dis_p1 = (p1.x-origin.x)*(p1.x-origin.x) + (p1.y-origin.y)*(p1.y-origin.y); 
+            int dis_p2 = (p2.x-origin.x)*(p2.x-origin.x) + (p2.y-origin.y)*(p2.y-origin.y); 
+            
+            if(dis_p1 > dis_p2)
+                return true;
+            else if(dis_p1 < dis_p2)
+                return false;
+            
+            if(p1.x > p2.x)
+                return true;
+            else if(p1.x < p2.x)
+                return false;
+            return p1.y > p2.y;
+        }
+        int size()
+        {
+            return q.size();
+        }
+        bool empty()
+        {
+            return q.size() == 0;
+        }
+};
+class Solution {
+public:
+    /**
+     * @param points: a list of points
+     * @param origin: a point
+     * @param k: An integer
+     * @return: the k closest points
+     */
+    vector<Point> kClosest(vector<Point> &points, Point &origin, int k) {
+        // write your code here
+        
+        // 利用自定义大顶堆来实现，时间复杂度为O(nlogk)，空间复杂度为O(k)
+        vector<Point> res;
+        if(k == 0||points.size() < k)
+            return res;
+
+        myheap heap(origin);
+        res.resize(k);
+        for(int i=0; i<points.size(); i++)
+        {
+            heap.push(points[i]);
+            if(heap.size() > k) 
+                heap.pop();
+        }
+        int i=k-1;
+        while(!heap.empty())
+        {
+            res[i--] = heap.top();
+            heap.pop();
+        }
+        return res;
+    }
+};
