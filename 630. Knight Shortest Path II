@@ -1,0 +1,114 @@
+class Solution {
+public:
+    /**
+     * @param grid: a chessboard included 0 and 1
+     * @return: the shortest path
+     */
+     
+    // DP解
+    // int shortestPath2(vector<vector<bool>> &grid)
+    // {
+    //     int d[4][2] = {{1, -2}, {-1, -2}, {2, -1}, {-2, -1}};
+    //     if(grid.size() == 0 || grid[0].size() == 0)
+    //         return -1;
+    //     int n = grid.size();
+    //     int m = grid[0].size();
+        
+    //     // 使用动态规划，从小规模的矩阵开始再考虑大规模的矩阵
+    //     vector<vector<int>> dp(n, vector<int>(m, -1));
+    //     dp[0][0] = 0;
+    //     for(int j=0; j<m; j++) // 先循环列再循环行，因为同一行可以上下移动
+    //         for(int i=0; i<n; i++)
+    //         {
+    //             if(grid[i][j] == 1)
+    //                 continue;
+    //             for(int k=0; k<4; k++)
+    //             {
+    //                 int x = i+d[k][0];
+    //                 int y = j+d[k][1];
+    //                 if(x>=0 && x<n && y>=0 && y<n && dp[x][y] > -1)
+    //                 {
+    //                     if(dp[i][j] == -1 || dp[i][j] > dp[x][y]+1)
+    //                         dp[i][j] = dp[x][y]+1;
+    //                 }
+    //             }
+    //         }
+                
+    //     return dp[n-1][m-1];
+    // }
+    
+    // BFS解（BFS是解决最短路径最好用的方法，利用BFS每一层加入的节点一定是从根节点到该节点的最短路径）
+    int shortestPath2(vector<vector<bool>> &grid)
+    {
+        int d[4][2] = {{1, 2}, {-1, 2}, {2, 1}, {-2, 1}};
+        if(grid.size() == 0 || grid[0].size() == 0)
+            return -1;
+        int n = grid.size();
+        int m = grid[0].size();
+        vector<vector<int>> res(n, vector<int>(m, -1));
+        res[0][0] = 0;
+        queue<pair<int, int>> q;
+        q.push(pair<int, int>{0, 0});
+        while(!q.empty())
+        {
+            pair<int, int> tmp = q.front();
+            q.pop();
+            for(int i=0; i<4; i++)
+            {
+                int x = tmp.first+d[i][0];
+                int y = tmp.second+d[i][1];
+                if(x>=0 && x<n && y>=0 && y<m)
+                {
+                    if(grid[x][y] == 1)
+                        continue;
+                    q.push(pair<int, int>{x, y});
+                    res[x][y] = res[tmp.first][tmp.second]+1;
+                    grid[x][y] = 1;
+                }
+            }
+        }
+        return res[n-1][m-1];
+    }
+    
+    // DFS解
+    // vector<vector<int>> minpaths;
+    // int shortestPath2(vector<vector<bool>> &grid) {
+    //     // write your code here
+    //     int d[4][2] = {{1, 2}, {-1, 2}, {2, 1}, {-2, 1}};
+    //     if(grid.size() == 0 || grid[0].size() == 0)
+    //         return -1;
+    //     int n = grid.size();
+    //     int m = grid[0].size();
+    //     minpaths = vector<vector<int>>(n, vector<int>(m, -2));
+    //     dfs(grid, 0, 0, d, n, m);
+    //     return minpaths[0][0];
+    // }
+    // int dfs(vector<vector<bool>> &grid, int x, int y, int d[][2], int &n, int &m) 
+    // {
+    //     if(minpaths[x][y] != -2)
+    //         return minpaths[x][y];
+    //     if(x == n-1 && y == m-1)
+    //     {
+    //         minpaths[x][y] = 0;
+    //         return 0;
+    //     }
+    //     int minpath = -1;
+    //     for(int i=0; i<4; i++)
+    //     {
+    //         int new_x = x+d[i][0];
+    //         int new_y = y+d[i][1];
+    //         if(new_x>=0 && new_x<n && new_y>=0 && new_y<m && grid[new_x][new_y] == 0)
+    //         {
+    //             grid[new_x][new_y] = 1;
+    //             int res = dfs(grid, new_x, new_y, d, n, m);
+    //             if(res > -1 && (minpath == -1 || res+1 < minpath))
+    //                 minpath = res+1;
+    //             grid[new_x][new_y]= 0;
+    //         }
+    //         else if(new_x>=0 && new_x<n && new_y>=0 && new_y<m && grid[new_x][new_y] == 1)
+    //             minpaths[new_x][new_y] = -1;
+    //     }
+    //     minpaths[x][y] = minpath;
+    //     return minpath;
+    // }
+};
