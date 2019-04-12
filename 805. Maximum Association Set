@@ -1,0 +1,64 @@
+class Solution {
+public:
+    /**
+     * @param ListA: The relation between ListB's books
+     * @param ListB: The relation between ListA's books
+     * @return: The answer
+     */
+     
+    string find(string x, unordered_map<string, string> &map) 
+    {
+        if(map[x] == "")
+            return x;
+        map[x] = find(map[x], map);
+        return map[x];
+    }
+    vector<string> maximumAssociationSet(vector<string> &ListA, vector<string> &ListB) {
+        // Write your code here
+        unordered_map<string, string> map;
+        for(int i=0; i<ListA.size(); i++)
+        {
+            if(map.find(ListA[i]) == map.end())
+                map.insert(make_pair(ListA[i], ""));
+        }
+        for(int i=0; i<ListB.size(); i++)
+        {
+            if(map.find(ListB[i]) == map.end())
+                map.insert(make_pair(ListB[i], ""));
+        }
+        int len = ListA.size() < ListB.size() ? ListA.size() : ListB.size();
+        for(int i=0; i<len; i++)
+        {
+            string strA = find(ListA[i], map);
+            string strB = find(ListB[i], map);
+            if(strA != strB)
+                map[strA] = strB;
+        }
+        
+        unordered_map<string, int> SetCount;
+        int maxcount = 0;
+        string maxstring = "";
+        // 再调用find函数对集合中所有点进行最大集合统计，并记录最大集合对应的字符串
+        for(unordered_map<string,string>::iterator it = map.begin(); it != map.end(); it++) 
+        {
+            string fx = find(it->first, map);
+            if(SetCount.find(fx) == SetCount.end())
+                SetCount.insert(make_pair(fx, 0));
+            else
+                SetCount[fx]++;
+            
+            if(SetCount[fx] > maxcount) {
+                maxstring = fx;
+                maxcount = SetCount[fx];
+            }
+        }
+        
+        vector<string> res;
+        for(unordered_map<string,string>::iterator it = map.begin(); it != map.end(); it++) {
+            if(it->second == maxstring || it->first == maxstring) {
+                res.push_back(it->first);
+            }
+        }
+        return res;
+    }
+};
