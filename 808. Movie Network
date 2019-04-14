@@ -1,0 +1,90 @@
+class Solution {
+public:
+    /**
+     * @param rating: the rating of the movies
+     * @param G: the realtionship of movies
+     * @param S: the begin movie
+     * @param K: top K rating 
+     * @return: the top k largest rating moive which contact with S
+     */
+    int find(int father[], int x)
+    {
+        if(father[x] == -1)
+            return x;
+        father[x] = find(father, father[x]);
+        return father[x];
+    }
+    vector<int> topKMovie(vector<int> &rating, vector<vector<int>> &G, int S, int K) {
+        // Write your code here
+        // 思路1：利用并查集将所有相关联系集中到一起，最后根据给定的编号S更新其对应的集合，并将集合中对应的元素加入数组中，最后利用小顶堆得到前k个rating最大的值
+        // int father[20001];
+        // for(int i=0; i<=20000; i++)
+        //     father[i] = -1;
+        // for(int i=0; i<G.size(); i++)
+        //     for(int j=0; j<G[i].size(); j++)
+        //     {
+        //         int a = find(father, i);
+        //         int b = find(father, G[i][j]);
+        //         if(a != b)
+        //             father[a] = b;
+        //     }
+        // int root = find(father, S);
+        // father[root] = root;
+        // vector<int> targetset;
+        // for(int i=0; i<G.size(); i++)
+        //     if(father[i] == root && i != S) // 注意不能把目标编号加入集合中
+        //         targetset.push_back(i); 
+    
+        
+        //思路2：利用BFS+小顶堆
+        if(S >= G.size() || rating.size() <= 0 || G.size() <= 0 || rating.size() != G.size())
+            return vector<int>{};
+            
+        bool visited[20001];
+        for(int i=0; i<=20000; i++)
+            visited[i] = false;
+        queue<int> q;
+        q.push(S);
+        visited[S] = true;
+        vector<int> targetset;
+        while(!q.empty())
+        {
+            int cur = q.front();
+            q.pop();
+            for(int i=0; i<G[cur].size(); i++)
+            {
+                if(visited[G[cur][i]] == false)
+                {
+                    q.push(G[cur][i]);
+                    targetset.push_back(G[cur][i]);
+                    visited[G[cur][i]] = true;
+                }
+            }
+        }
+        
+        if(K >= targetset.size())
+            return targetset;
+            
+        struct cmp{
+            bool operator()(pair<int, int> &x, pair<int, int> &y)
+            {
+                return x.second > y.second;
+            }
+        };
+        priority_queue< pair<int, int>, vector< pair<int, int> >, cmp> pq;
+        for(int i=0; i<targetset.size(); i++)
+        {
+            pq.push(pair<int, int>{targetset[i], rating[targetset[i]]});
+            if(pq.size() > K)
+                pq.pop();
+        }
+        vector<int> res;
+        while(!pq.empty())
+        {
+            pair<int, int> tmp = pq.top();
+            res.push_back(tmp.first);
+            pq.pop();
+        }
+        return res;
+    }
+};
