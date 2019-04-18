@@ -1,0 +1,82 @@
+class Solution {
+public:
+    /**
+     * @param str: The string
+     * @param k: The length of the substring
+     * @return: The answer
+     */
+    int findSubstring(string &str, int k) {
+        // Write your code here
+        if(str.length() < k || k == 0 || k > 26)
+            return 0;
+        int chars[26];
+        for(int i=0; i<26; i++)
+            chars[i] = 0;
+        unordered_set<string> strset;
+        
+        /*因为字符串需要满足2个条件，一个是长度为K，一个是没有重复的字符。
+做法：后指针移动并统计字符，用一个HashSet来记录已出现过的char。前指针在2种情况下移动：
+
+后指针所指向的char已经出现过（就是已经出现在start ~ i的区间里）；
+当前长度已经到达K（就是start - i区间长度为K）
+如果有满足的条件的substring，就加入另外一个HashSet去避免重复，最后结果就是这个HashSet里的字符串个数。*/
+
+// 需要通过画图表达清楚前后指针的关系
+        int left=0, right=0;
+        while(left <= str.length()-k)
+        {
+            if(right-left+1 == k)
+            {
+                if(chars[str[right]-'a'] == 0)
+                {
+                    strset.insert(str.substr(left, k));
+                    chars[str[left]-'a'] = 0;
+                    chars[str[right]-'a'] = 1;
+                    right++;
+                }
+                else
+                {
+                    if(str[left] != str[right])
+                        chars[str[left]-'a'] = 0;
+                    else
+                        right++;
+                }
+                left++;
+            }
+            else
+            {
+                if(left < right && chars[str[right]-'a'] == 1)
+                {
+                    if(str[left] != str[right])
+                        chars[str[left]-'a'] = 0;
+                    else
+                        right++;
+                    left++;
+                }
+                else
+                    chars[str[right++]-'a']=1;
+            }
+        }
+        
+        // for(int i=0; i<=str.length()-k;i++)
+        // {
+        //     string tmp = str.substr(i, k);
+        //     if(check(tmp))
+        //         strset.insert(tmp);
+        // }
+        return strset.size();
+    }
+    
+    bool check(string &str)
+    {
+        int chars[26];
+        for(int i=0; i<26; i++)
+            chars[i] = 0;
+        for(int i=0; i<str.length(); i++)
+            if(chars[str[i]-'a'] == 1)
+                return false;
+            else
+                chars[str[i]-'a'] = 1;
+        return true;
+    }
+};
