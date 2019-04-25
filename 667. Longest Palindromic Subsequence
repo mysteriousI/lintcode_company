@@ -1,0 +1,35 @@
+class Solution {
+public:
+    /**
+     * @param s: the maximum length of s is 1000
+     * @return: the longest palindromic subsequence's length
+     */
+    int longestPalindromeSubseq(string &s) {
+        // write your code here
+        // 本问题与最长上升子序列的状态转移方程不同，不能直接沿用。因为不能只通过前一个状态就能得到后一个状态，有可能前一个状态不满足的回文加上后一个元素后能把前面的元素都用上。正确的状态转移方程如下：
+        // dp[i][j] = dp[i+1][j-1] + 2 if s[i] == s[j]
+        // dp[i][j] = max(dp[i+1][j], dp[i][j-1]) if s[i]!=s[j] 视i j为区间的左右两个位置
+        if(s.length() == 0)
+            return 0;
+        vector< vector<int>> dp(s.length(), vector<int>(s.length()));
+        for(int i=0; i<s.length(); i++)
+            dp[i][i] = 1;
+        int maxlen = 1;
+        for(int i=s.length()-2; i>=0; i--)
+        {
+            for(int j=i+1; j<s.length(); j++)
+            {
+                if(s[i] == s[j])
+                {
+                    dp[i][j] = 2;
+                    if(i+1 <= j-1)
+                        dp[i][j] += dp[i+1][j-1];
+                }
+                else
+                    dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
+                maxlen = max(maxlen, dp[i][j]);
+            }
+        }
+        return maxlen;
+    }
+};
